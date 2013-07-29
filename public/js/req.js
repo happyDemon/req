@@ -1,7 +1,7 @@
 /**
  * Req jQuery plugin
  * -----------------+
- * v 0.1 - 18/07/2013
+ * v 0.2 - 29/07/2013
  *
  * Standardised way of dealing with ajax requests.
  *
@@ -58,6 +58,7 @@
 		}
 
 		//handle status codes
+		opts.statusCode = {};
 		for(code in statusCodes)
 		{
 			opts.statusCode[code] = statusCodes[code];
@@ -75,15 +76,16 @@
 			}
 		}
 
+
 		//handle successful requests
 		opts.success = function(data, status, jqXHR) {
-			switch(data.type)
+			switch(data.status)
 			{
-				case 'success':
-					El.trigger('success', data.response, status, jqXHR);
-					break;
 				case 'error':
 					El.trigger('error', data.errors, status, jqXHR);
+					break;
+				case 'success':
+					El.trigger('success', data.response, status, jqXHR);
 					break;
 			}
 		}
