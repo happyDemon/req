@@ -11,7 +11,7 @@
  * @link       http://github.com/happyDemon/RD/
  */
 
-class RD {
+class Kohana_RD {
 
 	// Message types
 	const ERROR = 'error';
@@ -42,8 +42,8 @@ class RD {
 	 *
 	 * @param   string  $type    message type (e.g. RD::SUCCESS)
 	 * @param   mixed   $text    message text OR array of messages
-	 * @param   array   $values  values to replace with sprintf OR strtr
-	 * @param   mixed   $data    custom data
+	 * @param   array   $values  values to replace with __() (mostly used in flash messages)
+	 * @param   mixed   $data    custom data (mostly used in ajax returns) if set to true it'll copy $values into it
 	 */
 	public static function set($type, $text, array $values = NULL, $data = NULL)
 	{
@@ -58,21 +58,14 @@ class RD {
 			return;
 		}
 
-		if ($values)
+		if ($values != null)
 		{
-			if (Arr::is_assoc($values))
-			{
-				// Insert the values into the message
-				$text = strtr($text, $values);
-			}
-			else
-			{
-				// The target string goes first
-				array_unshift($values, $text);
+			$text = __($text, $values);
+		}
 
-				// Insert the values into the message
-				$text = call_user_func_array('sprintf', $values);
-			}
+		if($data === true)
+		{
+			$data = $values;
 		}
 
 		self::$_msg[] = array(
@@ -82,10 +75,10 @@ class RD {
 		);
 	}
 
-	public static function set_array($type, $array, $data=array()) {
+	public static function set_array($type, $data) {
 		self::$_msg[] = array(
 			'type' => $type,
-			'value' => $array,
+			'value' => null,
 			'data' => $data
 		);
 	}
@@ -245,6 +238,13 @@ class RD {
 		if($type == null) {
 			$output = self::$_msg;
 		}
+		else if(is_array($type))
+		{
+			foreach(self::$_msg as $msg) {
+				if(in_array($msg['type'], $type))
+					$output[] = $msg;
+			}
+		}
 		else {
 			foreach(self::$_msg as $msg) {
 				if($msg['type'] == $type)
@@ -254,6 +254,7 @@ class RD {
 
 		if(count($output) > 0)
 			return $output;
+
 		return null;
 	}
 
@@ -302,7 +303,7 @@ class RD {
 
 		if($keep_alive == true)
 		{
-			$msg = array_merge(Session::instance()->get(RD::$storage_key), $msg);
+			$msg = array_merge(Session::instance()->get(RD::$storage_key, array()), $msg);
 		}
 
 		// Store the updated messages

@@ -11,7 +11,7 @@
  * @link       http://github.com/happyDemon/RD/
  */
 
-class Kohana_Controller_Req extends Controller {
+abstract class Kohana_Controller_Req extends Controller {
 	/**
 	 * Automatically handle the output of an ajax request or not?
 	 * @var bool
@@ -30,17 +30,13 @@ class Kohana_Controller_Req extends Controller {
 					$return['status'] = 'success';
 					$return['response'] = '';
 				}
-				else if($messages = RD::get_current(RD::ERROR) != null) {
+				else if(RD::get_current(RD::ERROR) != null) {
 					$return['status'] = 'error';
-					$return['errors'] = $messages;
+					$return['errors'] = RD::get_current(RD::ERROR);
 				}
-				else if($messages = RD::get_current(RD::SUCCESS) != null) {
+				else if(RD::get_current(array(RD::SUCCESS, RD::INFO)) != null) {
 					$return['status'] = 'success';
-					$return['response'] = $messages;
-				}
-				else if($messages = RD::get_current(RD::INFO) != null) {
-					$return['status'] = 'info';
-					$return['response'] = $messages;
+					$return['response'] = RD::get_current(array(RD::SUCCESS, RD::INFO));
 				}
 				else {
 					$messages = RD::get_current();
@@ -48,14 +44,14 @@ class Kohana_Controller_Req extends Controller {
 					$return['response'] = $messages;
 				}
 
-				$this->request->headers('Content-Type', 'application/json');
-				$this->request->body(json_encode($return));
+				$this->response->headers('Content-Type', 'application/json');
+				$this->response->body(json_encode($return));
 			}
 			else {
 				//otherwise flash the messages so they can be used on the next page load
 				if(RD::has_messages())
 					RD::persist();
-				
+
 				parent::after();
 			}
 		}
