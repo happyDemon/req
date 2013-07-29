@@ -22,11 +22,15 @@ class Kohana_Controller_Req extends Controller {
 	 * Handle Request Data persistence or output based on the request type.
 	 */
 	public function after() {
-		if($this->_handle_ajax == true && RD::has_messages()) {
+		if($this->_handle_ajax == true) {
 			if($this->request->is_ajax()) {
 				$return = array();
 
-				if($messages = RD::get_current(RD::ERROR) != null) {
+				if(RD::has_messages() == false) {
+					$return['status'] = 'success';
+					$return['response'] = '';
+				}
+				else if($messages = RD::get_current(RD::ERROR) != null) {
 					$return['status'] = 'error';
 					$return['errors'] = $messages;
 				}
@@ -49,7 +53,9 @@ class Kohana_Controller_Req extends Controller {
 			}
 			else {
 				//otherwise flash the messages so they can be used on the next page load
-				RD::persist();
+				if(RD::has_messages())
+					RD::persist();
+				
 				parent::after();
 			}
 		}
