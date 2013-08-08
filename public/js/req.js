@@ -17,12 +17,12 @@
 		var El = this;
 
 		//Bind success and error callbacks, if provided
-		if(options.success != 'undefined') {
+		if(typeof options.success != 'undefined') {
 			El.bind('success', options.success);
 			delete options.success;
 		}
 
-		if(options.error != 'undefined') {
+		if(typeof options.error != 'undefined') {
 			El.bind('error', options.error);
 			delete options.error;
 		}
@@ -30,7 +30,7 @@
 		//check for defined status code handlers
 		var statusCodes = {};
 
-		if(options.statusCodes != 'undefined') {
+		if(typeof options.statusCodes != 'undefined') {
 			statusCodes = options.statusCodes;
 			delete options.statusCodes;
 		}
@@ -41,12 +41,12 @@
 		var opts = $.extend( {}, $.fn.req.defaults, options );
 
 		//if form is defined let's try to serialize
-		if(form != 'undefined') {
+		if(typeof form != 'undefined') {
 			//defined as a jQuery object
 			if(form instanceof jQuery) {
 				opts.data = form.serialize();
 			}
-			else if(typeof form === 'Object')
+			else if(form instanceof Object)
 			{
 				//it's a JSON object
 				opts.data = form;
