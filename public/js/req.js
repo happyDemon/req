@@ -1,7 +1,7 @@
 /**
  * Req jQuery plugin
  * -----------------+
- * v 0.2 - 29/07/2013
+ * v 0.2.1 - 08/08/2013
  *
  * Standardised way of dealing with ajax requests.
  *
