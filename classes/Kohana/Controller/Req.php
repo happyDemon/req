@@ -68,6 +68,8 @@ abstract class Kohana_Controller_Req extends Controller {
 
 		if(count($msgs))
 			return View::factory('RD/alerts', array('messages' => $msgs))->render();
+		else if(RD::has_messages())
+			return View::factory('RD/alerts', array('messages' => RD::get_current(null, true)))->render();
 		else
 			return '';
 	}
