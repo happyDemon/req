@@ -1,0 +1,19 @@
+{
+	"name"       :"happydemon/req",
+	"type"       :"kohana-module",
+	"description":"Kohana 3.3 Ajax request handler with graceful fall back",
+	"keywords"   :["kohana", "request", "data persistence", "flash", "messages", "jquery"],
+	"homepage"   :"https://github.com/happyDemon/req",
+	"license"    :"MIT",
+	"authors"    :[
+		{
+			"name"    :"Maxim Kerstens",
+			"email"   :"maxim.kerstens@gmail.com",
+			"role"    :"Developer"
+		}
+	],
+	"require"    :{
+		"php"                       :">=5.3.3",
+		"composer/installers"       : "*"
+	}
+}

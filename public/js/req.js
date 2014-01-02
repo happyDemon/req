@@ -1,7 +1,7 @@
 /**
  * Req jQuery plugin
  * -----------------+
- * v 0.2.1 - 08/08/2013
+ * v 0.2.2 - 02/01/2018
  *
  * Standardised way of dealing with ajax requests.
  *
@@ -10,20 +10,54 @@
  *  - local success and error callbacks (can be bound on the element or passed in options)
  *  - Switch out the request error handler if needed
  *  - Pass data as a second parameter in form of a jQuery form object, form selector or a JSON object)
+ *  - Easy request response helper $.reqResponse(data, callback, context)
  */
 (function( $ ) {
+
+	/**
+	 * A little helper method that loops over responses (if multiple responses were sent).
+	 *
+	 * $(elemen).on('req.success', function(e, resp) {
+	 *     $.reqResponse(resp, function(response){
+	 *
+	 *      // A response always has these properties:
+	 *      // response.data JSON|Array
+	 *      // response.value string
+	 *      // response.type string (info/success/warning/danger)
+	 *
+	 *     console.log(response);
+	 *     }, this);
+	 * }
+	 *
+	 * @param response The response object returned after a request
+	 * @param callback Callback to handle individual responses
+	 * @param context Optional - Provide a callback context
+	 */
+	$.reqResponse = function(response, callback, context) {
+		if(response.length > 1)
+		{
+			$.each(response, function(index, resp)
+			{
+				callback.call(context, resp);
+			})
+		}
+		else
+		{
+			callback.call(context, response[0]);
+		}
+	};
 
 	$.fn.req = function( options, form) {
 		var El = this;
 
 		//Bind success and error callbacks, if provided
 		if(typeof options.success != 'undefined') {
-			El.bind('success', options.success);
+			El.bind('req.success', options.success);
 			delete options.success;
 		}
 
 		if(typeof options.error != 'undefined') {
-			El.bind('error', options.error);
+			El.bind('req.error', options.error);
 			delete options.error;
 		}
 
@@ -82,10 +116,10 @@
 			switch(data.status)
 			{
 				case 'error':
-					El.trigger('error', data.errors, status, jqXHR);
+					El.trigger('req.error', [data.errors, status, jqXHR]);
 					break;
 				case 'success':
-					El.trigger('success', data.response, status, jqXHR);
+					El.trigger('req.success', [data.response, status, jqXHR]);
 					break;
 			}
 		}

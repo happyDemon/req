@@ -28,7 +28,7 @@ abstract class Kohana_Controller_Req extends Controller {
 
 				if(RD::has_messages() == false) {
 					$return['status'] = 'success';
-					$return['response'] = '';
+					$return['response'] = [''];
 				}
 				else if(RD::get_current(RD::ERROR) != null) {
 					$return['status'] = 'error';
@@ -59,6 +59,7 @@ abstract class Kohana_Controller_Req extends Controller {
 			parent::after();
 	}
 
+	protected $_dump_all_alerts = false;
 	/**
 	 * Get all the persisted Request Data alerts (if any) and parse them into bootstrap HTML alerts
 	 * @return string
@@ -69,7 +70,9 @@ abstract class Kohana_Controller_Req extends Controller {
 		if(count($msgs))
 			return View::factory('RD/alerts', array('messages' => $msgs))->render();
 		else if(RD::has_messages())
-			return View::factory('RD/alerts', array('messages' => RD::get_current(null, true)))->render();
+		{
+			return View::factory('RD/alerts', array('messages' => RD::get_current(null, $this->_dump_all_alerts)))->render();
+		}
 		else
 			return '';
 	}

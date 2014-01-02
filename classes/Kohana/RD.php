@@ -17,6 +17,7 @@ class Kohana_RD {
 	const ERROR = 'error';
 	const SUCCESS = 'success';
 	const INFO = 'info';
+	const WARNING = 'warning';
 
 	/**
 	 * @var  string  session key used for storing messages
@@ -75,12 +76,16 @@ class Kohana_RD {
 		);
 	}
 
-	public static function set_array($type, $data) {
-		self::$_msg[] = array(
-			'type' => $type,
-			'value' => null,
-			'data' => $data
-		);
+	public static function set_array($type, $data)
+	{
+		foreach($data as $d)
+		{
+			self::$_msg[] = array(
+				'type' => $type,
+				'value' => $d[0],
+				'data' => $d[1]
+			);
+		}
 	}
 
 	/**
@@ -233,22 +238,47 @@ class Kohana_RD {
 	 * @param string|null $type Which type of messages should be returned
 	 * @return array
 	 */
-	public static function get_current($type = NULL) {
+	public static function get_current($type = NULL, $delete=false)
+	{
 		$output = array();
-		if($type == null) {
+
+		if($type == null)
+		{
 			$output = self::$_msg;
+
+			if($delete == true)
+			{
+				self::$_msg = array();
+			}
 		}
 		else if(is_array($type))
 		{
-			foreach(self::$_msg as $msg) {
-				if(in_array($msg['type'], $type))
+			foreach(self::$_msg as $id => $msg)
+			{
+				if($msg['type'] == $type)
+				{
 					$output[] = $msg;
+
+					if($delete)
+					{
+						unset(self::$_msg[$id]);
+					}
+				}
 			}
 		}
-		else {
-			foreach(self::$_msg as $msg) {
+		else
+		{
+			foreach(self::$_msg as $id => $msg)
+			{
 				if($msg['type'] == $type)
+				{
 					$output[] = $msg;
+
+					if($delete)
+					{
+						unset(self::$_msg[$id]);
+					}
+				}
 			}
 		}
 
@@ -289,7 +319,8 @@ class Kohana_RD {
 	 * Check if there were any messages added to the current request
 	 * @return bool
 	 */
-	public static function has_messages() {
+	public static function has_messages()
+	{
 		return (count(self::$_msg) > 0);
 	}
 
@@ -298,7 +329,8 @@ class Kohana_RD {
 	 *
 	 * @var bool $keep_alive Previously stored messages will be lost if false
 	 */
-	public static function persist($keep_alive=true) {
+	public static function persist($keep_alive=true)
+	{
 		$msg = self::$_msg;
 
 		if($keep_alive == true)
