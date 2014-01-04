@@ -22,32 +22,38 @@ abstract class Kohana_Controller_Req extends Controller {
 	 * Handle Request Data persistence or output based on the request type.
 	 */
 	public function after() {
-		if($this->_handle_ajax == true) {
-			if($this->request->is_ajax()) {
+		if($this->_handle_ajax == true)
+		{
+			if($this->request->is_ajax())
+			{
 				$return = array();
 
-				if(RD::has_messages() == false) {
+				if(RD::has_messages() == false)
+				{
 					$return['status'] = 'success';
 					$return['response'] = [''];
 				}
-				else if(RD::get_current(RD::ERROR) != null) {
+				else if(RD::get_current(RD::ERROR) != null)
+				{
 					$return['status'] = 'error';
 					$return['errors'] = RD::get_current(RD::ERROR);
 				}
-				else if(RD::get_current(array(RD::SUCCESS, RD::INFO)) != null) {
+				else if(RD::get_current(array(RD::SUCCESS, RD::INFO)) != null)
+				{
 					$return['status'] = 'success';
-					$return['response'] = RD::get_current(array(RD::SUCCESS, RD::INFO));
+					$return['response'] = RD::get_current(array(RD::SUCCESS, RD::INFO, RD::WARNING));
 				}
-				else {
-					$messages = RD::get_current();
+				else
+				{
 					$return['status'] = 'success';
-					$return['response'] = $messages;
+					$return['response'] = RD::get_current();
 				}
 
 				$this->response->headers('Content-Type', 'application/json');
 				$this->response->body(json_encode($return));
 			}
-			else {
+			else
+			{
 				//otherwise flash the messages so they can be used on the next page load
 				if(RD::has_messages())
 					RD::persist();
@@ -59,7 +65,11 @@ abstract class Kohana_Controller_Req extends Controller {
 			parent::after();
 	}
 
+	/**
+	 * @var bool Remove messages that are loaded in the view
+	 */
 	protected $_dump_all_alerts = false;
+
 	/**
 	 * Get all the persisted Request Data alerts (if any) and parse them into bootstrap HTML alerts
 	 * @return string
@@ -75,5 +85,26 @@ abstract class Kohana_Controller_Req extends Controller {
 		}
 		else
 			return '';
+	}
+
+	/**
+	 * @param string|Route $uri where to redirect to
+	 * @param null   $code      Which redirect code to use (302 default)
+	 * @param bool   $if_ajax   Should the redirect be performed during an ajax request?
+	 */
+	public static function redirect($uri='', $code=null, $if_ajax=false)
+	{
+		// if this is called during ajax request, check if we should actually redirect
+		if(Request::initial()->is_ajax() && $if_ajax == false)
+			return;
+
+		if($code == null)
+		{
+			$code = 302;
+		}
+
+		RD::persist();
+
+		return parent::redirect($uri, $code);
 	}
 }
