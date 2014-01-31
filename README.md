@@ -9,3 +9,7 @@ Kohana 3.3 Ajax request handler with graceful fall back
 Aims to standardise how you build your ajax response in Kohana and how it's handled on the client-side (jQuery plugin provided).
 
 **Don't forget to copy public/js/req.js to your root dir**
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/happyDemon/req/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
