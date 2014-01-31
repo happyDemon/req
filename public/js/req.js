@@ -75,20 +75,58 @@
 		// Extend our default options with those provided.
 		var opts = $.extend( {}, $.fn.req.defaults, options );
 
+		var csrf = false
+		//check for CSRF support
+		if(opts.CSRF != false) {
+
+			//if a jQuery element is passed get its content
+			if(opts.CSRF instanceof jQuery) {
+				csrf = opts.CSRF.text();
+			}
+			//otherwise pass the provided string
+			else {
+				csrf = opts.CSRF;
+			}
+		}
+
+		// if data was defined as JSON object add the CSRF token
+		if(opts.data instanceof Object)
+		{
+			if(csrf != false)
+			{
+				opts.data[opts.CSRF_key] = csrf;
+			}
+		}
+
 		//if form is defined let's try to serialize
 		if(typeof form != 'undefined') {
 			//defined as a jQuery object
 			if(form instanceof jQuery) {
 				opts.data = form.serialize();
+
+				if(csrf != false)
+				{
+					opts.data += '&'+opts.CSRF_key+'='+csrf;
+				}
 			}
 			else if(form instanceof Object)
 			{
 				//it's a JSON object
 				opts.data = form;
+
+				if(csrf != false)
+				{
+					opts.data[opts.CSRF_key] = csrf;
+				}
 			}
 			//defined as a selector
 			else {
 				opts.data = $(form).serialize();
+
+				if(csrf != false)
+				{
+					opts.data += '&'+opts.CSRF_key+'='+csrf;
+				}
 			}
 		}
 
@@ -99,26 +137,35 @@
 			opts.statusCode[code] = statusCodes[code];
 		}
 
-		//check for CSRF support
-		if(opts.CSRF != false) {
-			//if a jQuery element is passed get its content
-			if(opts.CSRF instanceof jQuery) {
-				opts.data[opts.CSRF_key] = opts.CSRF.text();
-			}
-			//otherwise pass the provided string
-			else {
-				opts.data[opts.CSRF_key] = opts.CSRF;
+		var events = $._data($(El)[0], "events");
+
+		var has_events = {
+			'success': false,
+			'error': false
+		};
+
+		if(typeof events != 'undefined')
+		{
+			for(i=0;i<events.req.length;i++)
+			{
+				if(events.req[i].namespace == "error")
+				{
+					has_events.error = true;
+				}
+				else if(events.req[i].namespace == "success")
+				{
+					has_events.success = true;
+				}
 			}
 		}
 
-		var events = $._data(this, "events");
-
 		// handle successful requests, fallback to default handler if no event listener was set
 		opts.success = function(data, status, jqXHR) {
+
 			switch(data.status)
 			{
 				case 'error':
-					if(events['req.error'] != 'undefined')
+					if(has_events.error == true)
 					{
 						El.trigger('req.error', [data.errors, status, jqXHR]);
 					}
@@ -128,7 +175,7 @@
 					}
 					break;
 				case 'success':
-					if(typeof events['req.success'] != 'undefined')
+					if(has_events.success == true)
 					{
 						El.trigger('req.success', [data.response, status, jqXHR]);
 					}
