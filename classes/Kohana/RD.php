@@ -14,7 +14,7 @@
 class Kohana_RD {
 
 	// Message types
-	const ERROR = 'error';
+	const ERROR = 'danger';
 	const SUCCESS = 'success';
 	const INFO = 'info';
 	const WARNING = 'warning';
