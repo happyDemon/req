@@ -92,10 +92,10 @@ class Kohana_RD {
 	 * Set a new message using the `messages/RD` file.
 	 *
 	 *     // The array path to the message
-	 *     RD::error('user.login.error');
+	 *     RD::error('user.login.error'); -> RD::set(RD::ERROR, 'user.login.error');
 	 *
 	 *     // Embed some values
-	 *     RD::success('user.login.success', array($username));
+	 *     RD::success('user.login.success', array($username)); -> RD::set(RD::SUCCESS, 'user.login.success', array($username));
 	 *
 	 * @param  string  $type  message type (e.g. RD::SUCCESS)
 	 * @param  array   $arg   remaining parameters
@@ -103,7 +103,12 @@ class Kohana_RD {
 	 */
 	public static function __callStatic($type, $arg)
 	{
-		RD::set($type, $arg[0], Arr::get($arg, 1), Arr::get($arg, 2));
+		if(defined('RD::'.strtoupper($type)))
+		{
+			RD::set(constant('RD::'.strtoupper($type)), $arg[0], Arr::get($arg, 1), Arr::get($arg, 2));
+		}
+		else
+			Throw new Kohana_Exception('There\'s no such request data type as :type', [':type' => $type]);
 	}
 
 	/**
